@@ -1,4 +1,4 @@
-#include <include/emu.h>
+#include <include/elf.h>
 #define MAGIC 0xFACADE
 
 #define check(file) \
@@ -26,9 +26,32 @@ static u4 read_u4(FILE* file) {
   return ret; 
 }
 
+void valid_elf_magic(FILE* file) {
+  if (read_u1(file) != 0x7F)
+    goto err;
+  if (read_u1(file) != 45)
+    goto err;
+  if (read_u1(file) != 0x4c)
+    goto err;
+  if (read_u1(file) != 46)
+    goto err;
+err:
+  error("Not an ELF executable!");
+}
+
 void load(FILE* file, mem* memory) {
-  if (read_u4(file) != MAGIC)
-    error("Magic number is invalid");
+  valid_elf_magic(file);
+  if (read_u1(file) != ELFCLASS32)
+    error("File is not a 32 bit");
+  if (read_u1(file) != ELFDATA2LSB)
+    error("File is not little endian");
+  if (read_u1(file) != EV_CURRENT)
+    error("Invalid elf file version");
+  read_u4(file);
+  read_u4(file);
+  read_u1(file);
+  if (read_u2(file) != ET_EXEC)
+    error("File not marked executable");
   if (read_u1(file) != MAJOR || read_u1(file) != MINOR)
     error("Unsupported version");
   u8 curr = ftell(file);
