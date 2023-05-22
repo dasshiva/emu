@@ -1,0 +1,131 @@
+
+Load and Transfer
+LD
+LDF
+CLR
+MOV
+EXG
+LDW
+CLRW
+EXGW
+
+Stack operation
+PUSH
+POP
+PUSHW
+POPW
+
+Increment/ Decrement
+INC
+DEC
+INCW
+DECW
+
+Compare and Tests
+CP
+TNZ
+BCP
+CPW
+TNZW
+
+Logical operations
+AND
+OR
+XOR
+CPL
+CPLW
+
+Bit Operation
+BSET
+BRES
+BCPL
+BCCM
+
+Conditional Bit Test and Branch
+BTJT
+BTJF
+
+Arithmetic operations
+NEG
+ADC
+ADD
+SUB
+SBC
+MUL
+DIV
+DIVW
+NEGW
+ADDW
+SUBW
+
+Shift and Rotates
+SLL
+SRL
+SRA
+RLC
+RRC
+SWAP
+SLLW
+SRLW
+SRAW
+RLCW
+RRCW
+SWAPW
+RLWA
+RRWA
+
+Unconditional Jump or Call
+JRA
+JRT
+JRF
+JP
+JPF
+CALL
+CALLR
+CALLF
+RET
+RETF
+NOP
+
+Conditional Branch/ Execution
+JRxx
+WFE
+
+Interrupt management
+TRAP
+WFI
+HALT
+IRET
+
+Condition Code Flag modification
+SIM
+RIM
+SCF
+RCF
+CCF
+RVF
+
+Breakpoint/ software break
+BREAK
+
+
+4     A    0100  1010
+3     B    0011  1011
+5     C    0101  1100     72
+7     F    0111  1111
+6     E    0110  1110
+4     D    0100  1101     72
+
+7     F    0111  1111     90
+6     E    0110  1110     90
+4     D    0100  1101     90
+0     1    0000  0001
+
+3     C    0011  1100     92
+3     C    0011  1100     72
+6     D    0110  1101     92
+6     D    0110  1101     72
+6     D    0110  1101     91
+
+
+
