@@ -52,11 +52,6 @@ void load(FILE* file, mem* memory) {
   read_u1(file);
   if (read_u2(file) != ET_EXEC)
     error("File not marked executable");
-  if (read_u2(file) != EM_ARM)
-    error("Not a 32 bit arm executable");
-  if (read_u4(file) != EV_CURRENT)
-    error("Invalid elf file version");
-  u4 start = read_u4(file);
   if (read_u1(file) != MAJOR || read_u1(file) != MINOR)
     error("Unsupported version");
   u8 curr = ftell(file);
