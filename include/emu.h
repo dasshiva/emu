@@ -21,4 +21,12 @@ typedef uint64_t u8;
 #define u4_conv_be(num) (num >> 24) | (num << 8) | (num >> 8) | (num << 24)
 
 void load(FILE* file, mem* memory);
+void init(mem* memory);
+void exec(void);
+
+u1 read_u1(mem* memory, u8 offset);
+u2 read_u2(mem* memory, u8 offset);
+u4 read_u4(mem* memory, u8 offset);
+void print_bin(u4 integer);
+
 #endif

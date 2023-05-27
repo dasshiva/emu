@@ -25,6 +25,15 @@ main (int argc, char *argv[])
   if (!memory) {
     error("Memory could not be allocated");
   }
-  load(file, memory);
+  u8 curr = ftell(file);
+  fseek(file, 0, SEEK_END);
+  u8 size = ftell(file);
+  if ((size + LOAD) >= SIZE) 
+    error("Program is too large");
+  fseek(file, curr, SEEK_SET);
+  fread(memory, sizeof(mem), size - curr + 1, file);
+  fclose(file);
+  init(memory);
+  exec();
   return 0;
 }
