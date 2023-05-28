@@ -1,0 +1,143 @@
+#include <stdarg.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+void assert(int expected, int actual, char *code) {
+  if (expected == actual) {
+    printf("%s => %d\n", code, actual);
+  } else {
+    printf("%s => %d expected but got %d\n", code, expected, actual);
+    exit(1);
+  }
+}
+static int static_fn() { return 5; }
+int ext1 = 5;
+int *ext2 = &ext1;
+int ext3 = 7;
+int ext_fn1(int x) { return x; }
+int ext_fn2(int x) { return x; }
+
+int false_fn() { return 0; }
+int true_fn() { return 513; }
+int char_fn() { return (2 << 8) + 3; }
+int short_fn() { return (2 << 16) + 5; }
+
+int uchar_fn() { return (2 << 10) - 1 - 4; }
+int ushort_fn() { return (2 << 20) - 1 - 7; }
+
+int schar_fn() { return (2 << 10) - 1 - 4; }
+int sshort_fn() { return (2 << 20) - 1 - 7; }
+
+int add_all(int n, ...) {
+  va_list ap;
+  va_start(ap, n);
+
+  int sum = 0;
+  for (int i = 0; i < n; i++)
+    sum += va_arg(ap, int);
+  return sum;
+}
+
+float add_float(float x, float y) { return x + y; }
+
+double add_double(double x, double y) { return x + y; }
+
+int add10_int(int x1, int x2, int x3, int x4, int x5, int x6, int x7, int x8,
+              int x9, int x10) {
+  printf("%d,", x1);
+  printf("%d,", x2);
+  printf("%d,", x3);
+  printf("%d,", x4);
+  printf("%d,", x5);
+  printf("%d,", x6);
+  printf("%d,", x7);
+  printf("%d,", x8);
+  printf("%d,", x9);
+  printf("%d\n", x10);
+
+  return x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10;
+}
+
+float add10_float(float x1, float x2, float x3, float x4, float x5, float x6,
+                  float x7, float x8, float x9, float x10) {
+  printf("%f,", x1);
+  printf("%f,", x2);
+  printf("%f,", x3);
+  printf("%f,", x4);
+  printf("%f,", x5);
+  printf("%f,", x6);
+  printf("%f,", x7);
+  printf("%f,", x8);
+  printf("%f,", x9);
+  printf("%f\n", x10);
+  return x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10;
+}
+
+double add10_double(double x1, double x2, double x3, double x4, double x5,
+                    double x6, double x7, double x8, double x9, double x10) {
+  return x1 + x2 + x3 + x4 + x5 + x6 + x7 + x8 + x9 + x10;
+}
+
+int many_args3_(int a, double b, int c, int d, double e, int f, double g, int h,
+                double i, double j, double k, double l, double m, int n, int o,
+                double p, double z, int zz) {
+  printf("%d,", a);
+  printf("%lf,", b);
+  printf("%d,", c);
+  printf("%d,", d);
+  printf("%lf,", e);
+  printf("%d,", f);
+  printf("%lf,", g);
+  printf("%d,", h);
+  printf("%lf,", i);
+  printf("%lf,", j);
+  printf("%lf,", k);
+  printf("%lf,", l);
+  printf("%lf,", m);
+  printf("%d,", n);
+  printf("%d,", o);
+  printf("%lf,", p);
+  printf("%lf,", z);
+  printf("%d\n", zz);
+  return o / p;
+}
+
+int many_args1_(int a, int b, int c, int d, int e, int f, int g, int h, int i,
+                int j, int k, int l, int m) {
+  printf("%d,", a);
+  printf("%d,", b);
+  printf("%d,", c);
+  printf("%d,", d);
+  printf("%d,", e);
+  printf("%d,", f);
+  printf("%d,", g);
+  printf("%d,", h);
+  printf("%d,", i);
+  printf("%d,", j);
+  printf("%d,", k);
+  printf("%d,", l);
+  printf("%d\n", m);
+  return g / h;
+}
+
+typedef struct {
+  int a, b;
+  short c;
+  char d;
+} Ty4;
+typedef struct {
+  int a;
+  float b;
+  double c;
+} Ty5;
+typedef struct {
+  unsigned char a[3];
+} Ty6;
+typedef struct {
+  long a, b, c;
+} Ty7;
+
+typedef struct {
+  float a;
+  double b;
+} Ty8;

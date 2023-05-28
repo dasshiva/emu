@@ -1,0 +1,10 @@
+a.out
+**/*.s
+**/*.o
+/test/*.exe
+*.ct
+tmp
+riscv64-chibicc
+stage2
+.ccls-cache
+.vscode*
