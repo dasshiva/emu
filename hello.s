@@ -1,2 +1,2 @@
 _start:
-  addi a0, a0, 23
+  addi r0, r0, 23
