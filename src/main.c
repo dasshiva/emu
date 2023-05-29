@@ -28,7 +28,7 @@ main (int argc, char *argv[])
   u8 curr = ftell(file);
   fseek(file, 0, SEEK_END);
   u8 size = ftell(file);
-  if ((size + LOAD) >= SIZE) 
+  if (size >= SIZE) 
     error("Program is too large");
   fseek(file, curr, SEEK_SET);
   fread(memory, sizeof(mem), size - curr + 1, file);
