@@ -7,11 +7,17 @@
 void error (char *fmt, ...);
 #define SIZE 2097152
 
+extern struct func** program;
 typedef uint8_t mem;
 typedef uint8_t u1;
 typedef uint16_t u2;
 typedef uint32_t u4;
 typedef uint64_t u8;
+
+struct func {
+  char* name;
+  u4 code;
+};
 
 void load(FILE* file, mem* memory);
 void init(mem* memory);

@@ -13,9 +13,13 @@ __attribute__((noreturn)) void error (char *fmt, ...)
   exit (1);
 }
 
-int
-main (int argc, char *argv[])
-{
+static void prepare(mem* memory) {
+  u4 offset = 0;
+  if (read_u4(memory, offset) != 0xFACADE)
+    error("Magic number is invalid");
+}
+
+int main (int argc, char *argv[]) {
   if (argc < 2)
     error ("Need a filename");
   FILE *file = fopen(argv[1], "r");
@@ -33,7 +37,8 @@ main (int argc, char *argv[])
   fseek(file, curr, SEEK_SET);
   fread(memory, sizeof(mem), size - curr + 1, file);
   fclose(file);
+  prepare(memory);
   init(memory);
-  exec();
+  //exec();
   return 0;
 }
