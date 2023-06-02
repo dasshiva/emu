@@ -40,11 +40,11 @@ void decode_rtype(u4 ins) {
 void decode_itype(u4 ins) {
   itype.opcode = ins & 63;
   ins >>= 6;
-  itype.imm = ins & 0xFFFF;
-  ins >>= 16;
+  itype.ra = ins & 31;
+  ins >>= 5;
   itype.rb = ins & 31;
   ins >>= 5;
-  itype.ra = ins;
+  itype.imm = ins;
 }
 
 void decode_jtype(u4 ins) {

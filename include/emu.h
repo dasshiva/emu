@@ -6,8 +6,9 @@
 
 void error (char *fmt, ...);
 #define SIZE 2097152
+#define MAGIC 0xFACADE
+#define CKSUM 0xFCA
 
-extern struct func** program;
 typedef uint8_t mem;
 typedef uint8_t u1;
 typedef uint16_t u2;
@@ -16,11 +17,15 @@ typedef uint64_t u8;
 
 struct func {
   char* name;
+  u1 ty;
   u4 code;
+  u4 data;
 };
 
+extern struct func** program;
+extern u2 psize;
 void load(FILE* file, mem* memory);
-void init(mem* memory);
+void init(mem* memory, u4 startpc);
 void exec(void);
 
 u1 read_u1(mem* memory, u4 offset);

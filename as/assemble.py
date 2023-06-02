@@ -27,7 +27,8 @@ class Scanner:
     print(f"In {self.file} at line {self.line} : {self.text}\nError: {msg}")
     import sys
     sys.exit(1)
-
+# Entries in this table have the following format:
+# Instruction Arguments Opcode Instruction-Format where R represents register, I represents immediate. So for example RRI means two register argumenta followed by an immediate 
 insn = [("addi", 3, 1, 'RRI'),
         ("subi", 3, 2, 'RRI'),
         ("muli", 3, 3, 'RRI'),
@@ -35,9 +36,10 @@ insn = [("addi", 3, 1, 'RRI'),
         ("andi", 3, 5, 'RRI'),
         ("ori", 3, 6, 'RRI'),
         ("xori", 3, 7, 'RRI'),
-        ("divi", 3, 8, 'RRI'),
+        ("panic", 0, 8, 'N')
        ]
 
+data_attr = ["byte", "short", "int"]
 class Token (Enum):
   COMMA = 1
   INSN = 2
@@ -71,10 +73,10 @@ class Parser:
         if token[-1] == ':':
           self.tokens.append(( Token.LABEL, token ))
         else:
-          self.tokens.append(( Token.ATTR, token ))
+          self.tokens.append(( Token.ATTR[1:] , token ))
       else:
         if token[-1] == ':':
-          self.tokens.append(( Token.LABEL, token ))
+          self.tokens.append(( Token.LABEL, token[:-1] ))
         else:
           self.tokens.append(( Token.INSN, token ))
   
@@ -85,6 +87,8 @@ class Parser:
         if len(self.tokens) - 1 == ins[1]:
           parsed.append(ins[2])
           for i, arg in enumerate(ins[3], 1):
+            if arg == 'N':
+              break
             if arg == 'R' and self.tokens[i][0] != Token.REG:
               self.src.error(f"Argument {i} to instruction {ins[0]} must be a register")
             else:
@@ -118,6 +122,15 @@ class Parser:
             self.symtab.append([tok[1]])
             self.tokens.clear()
             break
+          elif tok[0] == Token.ATTR:
+            for count, attr in enumerate(data_attr):
+              if attr == tok[1]:
+                self.symtab.append("__data__" + [tok[1]])
+                if len(self.tokens) == 2:
+                  self.symtab[-1].append([count, 0])
+                else:
+                  self.symtab[-1].append([count, self.tokens[2]])
+                break
           else:
             self.src.error("Only directives and labels are allowed at top level")
       else:
@@ -136,17 +149,30 @@ class Parser:
           opcode |= ins[2] << 11
           opcode |= ins[1] << 6
           opcode |= ins[0]
+        elif ref[3] == 'N':
+          opcode = ins[0]
         func[i] = copy.deepcopy(opcode)
     out = open('hello.out', 'wb')
     out.write(0xFACADE.to_bytes(4, 'little'))
     out.write(0xFCA.to_bytes(2, 'little'))
     out.write(len(self.symtab).to_bytes(2, 'little'))
+    def strip(string):
+      if string.startswith('__data__'):
+        return string[len('__data__'):]
+      return string
     for func in self.symtab:
+      out.write(len(strip(func[0])).to_bytes(2, 'little'))
       out.write(bytes(func[0], 'ascii'))
-      out.write(len(func[0]).to_bytes(2, 'little'))
-      out.write((len(func) - 1).to_bytes(2, 'little'))
-      for opcode in func[1:]:
-        out.write(opcode.to_bytes(4, 'little'))
+      if func[0].startswith("__data__"):
+        out.write(0x1.to_bytes(1, 'little'))
+        width = func[1][0]
+        out.write(width.to_bytes(1, 'little'))
+        out.write(func[1][1].to_bytes(width, 'little'))
+      else:
+        out.write(0x0.to_bytes(1, 'little'))
+        out.write(((len(func) - 1) * 4).to_bytes(4, 'little'))
+        for opcode in func[1:]:
+          out.write(opcode.to_bytes(4, 'little'))
           
 sc = Scanner("../hello.s")
 p = Parser(sc)
