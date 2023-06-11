@@ -28,7 +28,7 @@ class Scanner:
     import sys
     sys.exit(1)
 # Entries in this table have the following format:
-# Instruction Arguments Opcode Instruction-Format where R represents register, I represents immediate. So for example RRI means two register argumenta followed by an immediate 
+# Instruction Arguments Opcode Instruction-Format where R represents register, I represents immediate. So for example RRI means two register argument followed by an immediate 
 insn = [("addi", 3, 1, 'RRI'),
         ("subi", 3, 2, 'RRI'),
         ("muli", 3, 3, 'RRI'),
@@ -36,7 +36,10 @@ insn = [("addi", 3, 1, 'RRI'),
         ("andi", 3, 5, 'RRI'),
         ("ori", 3, 6, 'RRI'),
         ("xori", 3, 7, 'RRI'),
-        ("panic", 0, 8, 'N')
+        ("panic", 0, 8, 'N'),
+        ("push", 1, 9, 'R'),
+        ("pop", 1, 10, 'R'),
+        ("mov", 0, 1, 'S')
        ]
 
 data_attr = ["byte", "short", "int"]
@@ -56,7 +59,9 @@ class Parser:
   
   def tokenise(self, text):
     for token in text:
-      if token[0].isnumeric():
+      if token[0].isnumeric() or token[0] == '$':
+        if token[0] == '$':
+          token = token[1:]
         try:
           self.tokens.append((Token.NUMBER, int(token)))
         except:
@@ -77,6 +82,8 @@ class Parser:
       else:
         if token[-1] == ':':
           self.tokens.append(( Token.LABEL, token[:-1] ))
+        elif token == 'sp':
+          self.tokens.append(( Token.REG, 26 ))
         else:
           self.tokens.append(( Token.INSN, token ))
   
