@@ -29,13 +29,13 @@ class Scanner:
     sys.exit(1)
 # Entries in this table have the following format:
 # Instruction Arguments Opcode Instruction-Format where R represents register, I represents immediate. So for example RRI means two register argument followed by an immediate 
-insn = [("addi", 2, 1, 'RRI'),
-        ("subi", 2, 2, 'RRI'),
-        ("muli", 2, 3, 'RRI'),
-        ("divi", 2, 4, 'RRI'),
-        ("andi", 2, 5, 'RRI'),
-        ("ori", 2, 6, 'RRI'),
-        ("xori", 2, 7, 'RRI'),
+insn = [("add", 2, 1, 'RR/RI'),
+        ("sub", 2, 2, 'RR/RI'),
+        ("mul", 2, 3, 'RR/IR'),
+        ("div", 2, 4, 'RR/IR'),
+        ("and", 2, 5, 'RR/IR'),
+        ("or", 2, 6, 'RR/IR'),
+        ("xor", 2, 7, 'RR/IR'),
         ("panic", 0, 8, 'N'),
         ("push", 1, 9, 'R'),
         ("pop", 1, 10, 'R'),
@@ -66,7 +66,7 @@ class Parser:
           self.tokens.append((Token.NUMBER, int(token)))
         except:
           self.src.error(f"Malformed number {token}")
-      elif token[0] == 'r':
+      elif token[0] == 'x':
         try:
           reg = int(token[1:])
           if reg >= 31 or reg <= 0:
