@@ -28,15 +28,14 @@ class Scanner:
     import sys
     sys.exit(1)
 # Entries in this table have the following format:
-# Instruction Arguments Opcode Instruction-Format where R represents register, I represents immediate. 
-# So for example RRI means two register argument followed by an immediate 
-insn = [("addi", 3, 1, 'RRI'),
-        ("subi", 3, 2, 'RRI'),
-        ("muli", 3, 3, 'RRI'),
-        ("divi", 3, 4, 'RRI'),
-        ("andi", 3, 5, 'RRI'),
-        ("ori", 3, 6, 'RRI'),
-        ("xori", 3, 7, 'RRI'),
+# Instruction Arguments Opcode Instruction-Format where R represents register, I represents immediate. So for example RRI means two register argument followed by an immediate 
+insn = [("addi", 2, 1, 'RRI'),
+        ("subi", 2, 2, 'RRI'),
+        ("muli", 2, 3, 'RRI'),
+        ("divi", 2, 4, 'RRI'),
+        ("andi", 2, 5, 'RRI'),
+        ("ori", 2, 6, 'RRI'),
+        ("xori", 2, 7, 'RRI'),
         ("panic", 0, 8, 'N'),
         ("push", 1, 9, 'R'),
         ("pop", 1, 10, 'R'),
@@ -159,11 +158,6 @@ class Parser:
           opcode |= ins[0]
         elif ref[3] == 'N':
           opcode = ins[0]
-        elif ref[3] == 'R':
-          opcode = ins[1]
-          opcode << 6
-          opcode |= ins[0]
-
         func[i] = copy.deepcopy(opcode)
     out = open('hello.out', 'wb')
     out.write(0xFACADE.to_bytes(4, 'little'))
