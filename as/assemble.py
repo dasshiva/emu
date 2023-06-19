@@ -87,10 +87,37 @@ class Parser:
         else:
           self.tokens.append(( Token.INSN, token ))
   
+  def parse_with(self, form, parsed):
+    parse = []
+    for i, c in enumerate(form, 1):
+      if c == 'R' && self.tokens[i][0] != TOKEN.REG:
+        parse.clear()
+        return False
+      elif c == 'I' && self.tokens[i][0] != TOKEN.INT:
+        parse.clear()
+        return False
+      else:
+        parse.append(self.tokens[i][1])
+    parsed += parse
+    return True
+    
   def parse_insn(self):
     parsed = []
-    
-    return parsed
+    index = -1
+    try:
+      index = insn.index(self.tokens[0][0])
+    except:
+      self.src.error(f"Instruction {self.tokens[0][1]} does not exist")
+    ins = insn[index]
+    parsed.append(ins[2])
+    if ins[3].find('/'):
+      parts = ins[3].split('/')
+      for i in parts:
+        if self.parse_with(i, parsed):
+          return parsed
+      self.src.error(f"Instruction {self.tokens[0][1]} has been given invalid or incorrect number of arguments")
+    else:
+      
 
   def parse(self):
     while True:
