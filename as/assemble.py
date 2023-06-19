@@ -96,14 +96,16 @@ class Parser:
           for i, arg in enumerate(ins[3], 1):
             if arg == 'N':
               break
-            if arg == 'R' and self.tokens[i][0] != Token.REG:
+            elif if arg == 'R' and self.tokens[i][0] != Token.REG:
               self.src.error(f"Argument {i} to instruction {ins[0]} must be a register")
-            else:
-              parsed.append(self.tokens[i][1])
-              continue
-            if arg == 'I' :
+            #else:
+            # parsed.append(self.tokens[i][1])
+            # continue
+            elif arg == 'I' :
               if self.tokens[i][0] != Token.INSN or self.tokens[i][0] != Token.NUMBER:
                 self.src.error(f"Argument {i} to instruction {ins[0]} must be an immediate/label")
+            elif arg == '/':
+              break
             else:
               parsed.append(self.tokens[i][1])
               continue
