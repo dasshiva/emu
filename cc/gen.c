@@ -109,7 +109,7 @@ static void emit_nostack(char *fmt, ...) {
 
 static char *get_int_reg(Type *ty, char r) {
     assert(r == 'a' || r == 'c');
-    return (r == 'a') ? "r0" : "r2";
+    return (r == 'a') ? "x0" : "x2";
 }
 
 static char *get_load_inst(Type *ty) {
@@ -183,7 +183,7 @@ static void maybe_emit_bitshift_load(Type *ty) {
     push("x2");
     emit("mov $0x%lx, x2", (1 << (long)ty->bitsize) - 1);
     emit("and x2, x0");
-    pop("x2");
+    ("x2");
 }
 
 static void maybe_emit_bitshift_save(Type *ty, char *addr) {
@@ -278,9 +278,9 @@ static void emit_gsave(char *varname, Type *ty, int off) {
 static void emit_lsave(Type *ty, int off) {
     SAVE;
     if (ty->kind == KIND_FLOAT) {
-        emit("movss #xmm0, %d(r2)", off);
+        emit("movss #xmm0, %d(x2)", off);
     } else if (ty->kind == KIND_DOUBLE) {
-        emit("movsd #xmm0, %d(r2)", off);
+        emit("movsd #xmm0, %d(x2)", off);
     } else {
         maybe_convert_bool(ty);
         char *reg = get_int_reg(ty, 'a');
@@ -330,9 +330,9 @@ static void emit_pointer_arith(char kind, Node *left, Node *right) {
 static void emit_zero_filler(int start, int end) {
     SAVE;
     for (; start <= end - 4; start += 4)
-        emit("movl $0, %d(r2)", start);
+        emit("movl $0, %d(x2)", start);
     for (; start < end; start++)
-        emit("movb $0, %d(r2)", start);
+        emit("movb $0, %d(x2)", start);
 }
 
 static void ensure_lvar_init(Node *node) {
@@ -521,8 +521,8 @@ static void emit_load_convert(Type *to, Type *from) {
 
 static void emit_ret() {
     SAVE;
-    emit("mov r2, sp");
-    pop("r2");
+    emit("mov x2, sp");
+    pop("x2");
     emit("ret");
 }
 
@@ -548,26 +548,26 @@ static void emit_binop(Node *node) {
 
 static void emit_save_literal(Node *node, Type *totype, int off) {
     switch (totype->kind) {
-    case KIND_BOOL:  emit("movb %d, %d(r2)", !!node->ival, off); break;
-    case KIND_CHAR:  emit("movb %d, %d(r2)", node->ival, off); break;
-    case KIND_SHORT: emit("movw %d, %d(r2)", node->ival, off); break;
-    case KIND_INT:   emit("movl %d, %d(r2)", node->ival, off); break;
+    case KIND_BOOL:  emit("movb %d, %d(x2)", !!node->ival, off); break;
+    case KIND_CHAR:  emit("movb %d, %d(x2)", node->ival, off); break;
+    case KIND_SHORT: emit("movw %d, %d(x2)", node->ival, off); break;
+    case KIND_INT:   emit("movl %d, %d(x2)", node->ival, off); break;
     case KIND_LONG:
     case KIND_LLONG:
     case KIND_PTR: {
-        emit("movl $%lu, %d(r2)", ((uint64_t)node->ival) & ((1L << 32) - 1), off);
-        emit("movl $%lu, %d(r2)", ((uint64_t)node->ival) >> 32, off + 4);
+        emit("movl $%lu, %d(x2)", ((uint64_t)node->ival) & ((1L << 32) - 1), off);
+        emit("movl $%lu, %d(x2)", ((uint64_t)node->ival) >> 32, off + 4);
         break;
     }
     case KIND_FLOAT: {
         float fval = node->fval;
-        emit("movl $%u, %d(r2)", *(uint32_t *)&fval, off);
+        emit("movl $%u, %d(x2)", *(uint32_t *)&fval, off);
         break;
     }
     case KIND_DOUBLE:
     case KIND_LDOUBLE: {
-        emit("movl $%lu, %d(r2)", *(uint64_t *)&node->fval & ((1L << 32) - 1), off);
-        emit("movl $%lu, %d(r2)", *(uint64_t *)&node->fval >> 32, off + 4);
+        emit("movl $%lu, %d(x2)", *(uint64_t *)&node->fval & ((1L << 32) - 1), off);
+        emit("movl $%lu, %d(x2)", *(uint64_t *)&node->fval >> 32, off + 4);
         break;
     }
     default:
@@ -579,7 +579,7 @@ static void emit_addr(Node *node) {
     switch (node->kind) {
     case AST_LVAR:
         ensure_lvar_init(node);
-        emit("lea %d(r2), x0", node->loff);
+        emit("lea %d(x2), x0", node->loff);
         break;
     case AST_GVAR:
         emit("lea %s(x31), x0", node->glabel);
@@ -618,7 +618,7 @@ static void emit_copy_struct(Node *left, Node *right) {
         emit("movb %d(x2), x5", i);
         emit("movb x5, %d(x0)", i);
     }
-    pop("r11");
+    pop("x11");
     pop("x2");
 }
 
@@ -856,7 +856,7 @@ static void emit_builtin_return_address(Node *node) {
     emit_expr(vec_head(node->args));
     char *loop = make_label();
     char *end = make_label();
-    emit("mov r2, x5");
+    emit("mov x2, x5");
     emit_label(loop);
     emit("test x0, x0");
     emit("jz %s", end);
@@ -865,7 +865,7 @@ static void emit_builtin_return_address(Node *node) {
     emit_jmp(loop);
     emit_label(end);
     emit("mov 8(x5), x0");
-    pop("r11");
+    pop("x11");
 }
 
 // Set the register class for parameter passing to x0.
@@ -889,7 +889,7 @@ static void emit_builtin_va_start(Node *node) {
     push("x2");
     emit("movl %d, (x0)", numgp * 8);
     emit("movl %d, 4(x0)", 48 + numfp * 16);
-    emit("lea %d(r2), x2", -REGAREA_SIZE);
+    emit("lea %d(x2), x2", -REGAREA_SIZE);
     emit("mov x2, 16(x0)");
     pop("x2");
 }
@@ -1009,7 +1009,7 @@ static void emit_func_call(Node *node) {
     pop_float_args(vec_len(floats));
     pop_int_args(vec_len(ints));
 
-    if (isptr) pop("r11");
+    if (isptr) pop("x11");
     if (ftype->hasva)
         emit("mov $%u, x0", vec_len(floats));
 
@@ -1429,13 +1429,13 @@ static void push_func_params(Vector *params, int off) {
     for (int i = 0; i < vec_len(params); i++) {
         Node *v = vec_get(params, i);
         if (v->ty->kind == KIND_STRUCT) {
-            emit("lea %d(r2), x0", arg * 8);
+            emit("lea %d(x2), x0", arg * 8);
             int size = push_struct(v->ty->size);
             off -= size;
             arg += size / 8;
         } else if (is_flotype(v->ty)) {
             if (xreg >= 8) {
-                emit("mov %d(r2), x0", arg++ * 8);
+                emit("mov %d(x2), x0", arg++ * 8);
                 push("x0");
             } else {
                 push_xmm(xreg++);
@@ -1444,10 +1444,10 @@ static void push_func_params(Vector *params, int off) {
         } else {
             if (ireg >= 6) {
                 if (v->ty->kind == KIND_BOOL) {
-                    emit("mov %d(r2), x29", arg++ * 8);
+                    emit("mov %d(x2), x29", arg++ * 8);
                     emit("movzb x29, x0");
                 } else {
-                    emit("mov %d(r2), x0", arg++ * 8);
+                    emit("mov %d(x2), x0", arg++ * 8);
                 }
                 push("x0");
             } else {
@@ -1469,7 +1469,7 @@ static void emit_func_prologue(Node *func) {
     emit_noindent("%s:", func->fname);
     emit("nop");
     push("x2");
-    emit("mov sp, r2");
+    emit("mov sp, x2");
     int off = 0;
     if (func->ty->hasva) {
         set_reg_nums(func->params);

@@ -1,6 +1,7 @@
 from enum import Enum
 from fixedint import *
-import copy
+import copy, sys
+
 class Scanner:
   def __init__(self, file):
     self.file = file
@@ -39,7 +40,9 @@ insn = [("add", 2, 1, 'RR/RI'),
         ("panic", 0, 8, 'N'),
         ("push", 1, 9, 'R'),
         ("pop", 1, 10, 'R'),
-        ("mov", 0, 1, 'S')
+        ("mov", 0, 11, 'RR/IR'),
+        ("nop", 0, 12, 'N'),
+        ("ret", 0, 13, 'N')
        ]
 
 data_attr = ["byte", "short", "int"]
@@ -69,7 +72,7 @@ class Parser:
       elif token[0] == 'x':
         try:
           reg = int(token[1:])
-          if reg >= 31 or reg <= 0:
+          if reg > 31 or reg < 0:
             raise Exception("")
           self.tokens.append(( Token.REG, reg ))
         except:
@@ -78,7 +81,7 @@ class Parser:
         if token[-1] == ':':
           self.tokens.append(( Token.LABEL, token ))
         else:
-          self.tokens.append(( Token.ATTR[1:] , token ))
+          self.tokens.append(( Token.DIRECT , token[1:] ))
       else:
         if token[-1] == ':':
           self.tokens.append(( Token.LABEL, token[:-1] ))
@@ -90,24 +93,29 @@ class Parser:
   def parse_with(self, form, parsed):
     parse = []
     for i, c in enumerate(form, 1):
-      if c == 'R' && self.tokens[i][0] != TOKEN.REG:
+      if c == 'R' and self.tokens[i][0] != Token.REG:
         parse.clear()
         return False
-      elif c == 'I' && self.tokens[i][0] != TOKEN.INT:
+      elif c == 'I' and self.tokens[i][0] != Token.NUMBER:
         parse.clear()
         return False
+      elif c == 'N':
+        break
       else:
         parse.append(self.tokens[i][1])
     parsed += parse
+    parsed.append(form)
     return True
     
   def parse_insn(self):
     parsed = []
     index = -1
-    try:
-      index = insn.index(self.tokens[0][0])
-    except:
-      self.src.error(f"Instruction {self.tokens[0][1]} does not exist")
+    for c, cont in enumerate(insn):
+      if (self.tokens[0][1] == cont[0]):
+        index = c
+        break
+    if index == -1:
+      self.src.error(f"Invalid instruction {self.tokens[0][1]}")
     ins = insn[index]
     parsed.append(ins[2])
     if ins[3].find('/'):
@@ -117,7 +125,9 @@ class Parser:
           return parsed
       self.src.error(f"Instruction {self.tokens[0][1]} has been given invalid or incorrect number of arguments")
     else:
-      
+      if self.parse_with(ins[3], parsed):
+          return parsed
+      self.src.error(f"Instruction {self.tokens[0][1]} has been given invalid or incorrect number of arguments")
 
   def parse(self):
     while True:
@@ -130,14 +140,13 @@ class Parser:
             if len(self.symtab) == 0:
               self.src.error("Instructions are not allowed at top  level")
             self.symtab[-1].append(parsed)
-            print(self.symtab)
             self.tokens.clear()
             break
           elif tok[0] == Token.LABEL:
             self.symtab.append([tok[1]])
             self.tokens.clear()
             break
-          elif tok[0] == Token.ATTR:
+          elif tok[0] == Token.DIRECT:
             for count, attr in enumerate(data_attr):
               if attr == tok[1]:
                 self.symtab.append("__data__" + [tok[1]])
@@ -157,7 +166,7 @@ class Parser:
       for i, ins in enumerate(func):
         if i == 0:
           continue
-        ref = insn[ins[0] - 1]
+        ref = ins[3]
         if ref[3] == 'RRI':
           opcode = ins[3]
           opcode <<= 16;
@@ -188,8 +197,8 @@ class Parser:
         out.write(((len(func) - 1) * 4).to_bytes(4, 'little'))
         for opcode in func[1:]:
           out.write(opcode.to_bytes(4, 'little'))
-          
-sc = Scanner("../hello.s")
+
+sc = Scanner(sys.argv[1])
 p = Parser(sc)
 p.parse()
 p.codegen()
