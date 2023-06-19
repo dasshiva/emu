@@ -89,28 +89,7 @@ class Parser:
   
   def parse_insn(self):
     parsed = []
-    for ins in insn:
-      if self.tokens[0][1] == ins[0]:
-        if len(self.tokens) - 1 == ins[1]:
-          parsed.append(ins[2])
-          for i, arg in enumerate(ins[3], 1):
-            if arg == 'N':
-              break
-            elif if arg == 'R' and self.tokens[i][0] != Token.REG:
-              self.src.error(f"Argument {i} to instruction {ins[0]} must be a register")
-            #else:
-            # parsed.append(self.tokens[i][1])
-            # continue
-            elif arg == 'I' :
-              if self.tokens[i][0] != Token.INSN or self.tokens[i][0] != Token.NUMBER:
-                self.src.error(f"Argument {i} to instruction {ins[0]} must be an immediate/label")
-            elif arg == '/':
-              break
-            else:
-              parsed.append(self.tokens[i][1])
-              continue
-        else:
-          self.src.error(f"Instruction {ins[0]} needs {ins[1]} arguments but {len(self.tokens) - 1} arguments have been provided")
+    
     return parsed
 
   def parse(self):
