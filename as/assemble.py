@@ -159,22 +159,27 @@ class Parser:
             self.src.error("Only directives and labels are allowed at top level")
       else:
         break
-
+      
+  def compute_flags(self, form):
+    ins = MutableUInt8(0)
+    if form.find('I') != -1:
+      ins = 0b1
+    elif form.find('O') != -1:
+      ins = 0b11
+    return ins
+    
   def codegen(self):
     for func in self.symtab:
-      opcode = MutableUInt32(0)
+      opcode = MutableUInt64(0)
       for i, ins in enumerate(func):
         if i == 0:
           continue
-        ref = ins[3]
-        if ref[3] == 'RRI':
-          opcode = ins[3]
-          opcode <<= 16;
-          opcode |= ins[2] << 11
-          opcode |= ins[1] << 6
-          opcode |= ins[0]
-        elif ref[3] == 'N':
-          opcode = ins[0]
+        if ins[-1] != 'N':
+          if ins[-2] != ins[1]:
+            opcode |= ins[2] << 24;
+          opcode |= ins[1] << 16;
+        opcode |= self.compute_flags(ins[-1]) << 8
+        opcode |= ins[0]
         func[i] = copy.deepcopy(opcode)
     out = open('hello.out', 'wb')
     out.write(0xFACADE.to_bytes(4, 'little'))
