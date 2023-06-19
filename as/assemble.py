@@ -201,7 +201,7 @@ class Parser:
         out.write(0x0.to_bytes(1, 'little'))
         out.write(((len(func) - 1) * 4).to_bytes(4, 'little'))
         for opcode in func[1:]:
-          out.write(opcode.to_bytes(4, 'little'))
+          out.write(opcode.to_bytes(8, 'little'))
 
 sc = Scanner(sys.argv[1])
 p = Parser(sc)
