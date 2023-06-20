@@ -9,12 +9,6 @@ typedef struct {
 
 static core main;
 
-void set_reg(u2 reg, u4 val) {
-  if (reg == 0)
-    return;
-  main.regs[reg] = val;
-}
-
 void init(mem* memory, u4 startpc) {
   main.memory = memory;
   main.pc = startpc;
@@ -33,14 +27,25 @@ char* find_function() {
     }
   }
 }
+
 void exec(void) {
   while (1) {
-    u4 ins = read_u4(main.memory, main.pc);
-    main.pc += 4;
-    u4 opcode = ins & 63;
+    u1 opcode = read_u1(main.memory, main.pc++);
+    decode(main.memory, main.pc);
+    main.pc += 7;
+    fprintf(stderr, "%d ", opcode);
     switch (opcode) {
+      case 8: return;
+      case 11: {
+        fprintf(stderr, "%d ", ins.format);
+        if (ins.format == 0)
+          main.regs[ins.dest] = main.regs[ins.regarg];
+        else if (ins.format == 1)
+          main.regs[ins.dest] = ins.imm;
+        break;
+      }
+      case 13: return;
       default: error("Unknown opcode: %d", opcode);
     }
-    break;
   }
 }

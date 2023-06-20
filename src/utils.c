@@ -20,37 +20,17 @@ u4 read_u4(mem* memory, u4 offset) {
   return (read4 << 24) | (read3 << 16) | (read2 << 8) | read1;
 }
 
-// these will be reused as needed
-r_t rtype;
-i_t itype;
-j_t jtype;
+instr ins;
 
-void decode_rtype(u4 ins) {
-  rtype.opcode = ins & 63;
-  ins >>= 6;
-  rtype.opx = ins & 2047;
-  ins >>= 11;
-  rtype.rc = ins & 31;
-  ins >>= 5;
-  rtype.rb = ins & 31;
-  ins >>= 5;
-  rtype.ra =  ins;
-}
-
-void decode_itype(u4 ins) {
-  itype.opcode = ins & 63;
-  ins >>= 6;
-  itype.ra = ins & 31;
-  ins >>= 5;
-  itype.rb = ins & 31;
-  ins >>= 5;
-  itype.imm = ins;
-}
-
-void decode_jtype(u4 ins) {
-  jtype.opcode = ins & 63;
-  ins >>= 6;
-  jtype.imm = ins;
+void decode(mem* memory, u4 offset) {
+  ins.format = read_u1(memory, offset++);
+  ins.dest = read_u1(memory, offset++);
+  switch (ins.format) {
+    case 0: ins.regarg = read_u1(memory, offset++); break;
+    case 1: ins.imm = read_u4(memory, offset); offset += 4; break;
+    case 2: ins.offset = read_u4(memory, offset); offset += 4; break;
+    default: error("Unknown format bit of instruction %d", ins.format);
+  }
 }
 
 u4 sign_ext(u2 imm) {

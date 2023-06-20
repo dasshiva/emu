@@ -165,7 +165,7 @@ class Parser:
     if form.find('I') != -1:
       ins = 0b1
     elif form.find('O') != -1:
-      ins = 0b11
+      ins = 0b10
     return ins
     
   def codegen(self):
@@ -200,6 +200,7 @@ class Parser:
       else:
         out.write(0x0.to_bytes(1, 'little'))
         out.write(((len(func) - 1) * 4).to_bytes(4, 'little'))
+        print(func)
         for opcode in func[1:]:
           out.write(opcode.to_bytes(8, 'little'))
 

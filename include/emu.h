@@ -28,36 +28,19 @@ void load(FILE* file, mem* memory);
 void init(mem* memory, u4 startpc);
 void exec(void);
 
+typedef struct {
+  u1 format;
+  u1 dest;
+  u1 regarg;
+  u4 imm;
+  u4 offset;
+} instr;
+
+extern instr ins;
+
 u1 read_u1(mem* memory, u4 offset);
 u2 read_u2(mem* memory, u4 offset);
 u4 read_u4(mem* memory, u4 offset);
 
-typedef struct {
-  u2 opcode : 6;
-  u2 imm;
-  u1 ra : 5;
-  u1 rb : 5;
-} i_t;
-
-typedef struct {
-  u2 opcode : 6;
-  u2 opx : 11;
-  u1 ra : 5;
-  u1 rb : 5;
-  u1 rc : 5;
-} r_t;
-
-typedef struct {
-  u2 opcode : 6;
-  u4 imm : 26;
-} j_t;
-
-extern j_t jtype;
-extern r_t rtype;
-extern i_t itype;
-
-void decode_rtype(u4 ins);
-void decode_itype(u4 ins);
-void decode_jtype(u4 ins);
 u4 sign_ext(u2 imm);
 #endif
