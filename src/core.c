@@ -35,15 +35,19 @@ void exec(void) {
     main.pc += 7;
     fprintf(stderr, "%d ", opcode);
     switch (opcode) {
+      case 1: break;
       case 8: return;
+      case 9:
+      case 10: break;
       case 11: {
-        fprintf(stderr, "%d ", ins.format);
+        //fprintf(stderr, "%d ", ins.format);
         if (ins.format == 0)
           main.regs[ins.dest] = main.regs[ins.regarg];
         else if (ins.format == 1)
           main.regs[ins.dest] = ins.imm;
         break;
       }
+      case 12: break;
       case 13: return;
       default: error("Unknown opcode: %d", opcode);
     }

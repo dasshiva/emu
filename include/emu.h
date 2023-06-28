@@ -41,6 +41,6 @@ extern instr ins;
 u1 read_u1(mem* memory, u4 offset);
 u2 read_u2(mem* memory, u4 offset);
 u4 read_u4(mem* memory, u4 offset);
-
+void decode(mem* memory, u4 offset);
 u4 sign_ext(u2 imm);
 #endif

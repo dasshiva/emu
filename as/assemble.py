@@ -30,8 +30,8 @@ class Scanner:
     sys.exit(1)
 # Entries in this table have the following format:
 # Instruction Arguments Opcode Instruction-Format where R represents register, I represents immediate. So for example RRI means two register argument followed by an immediate 
-insn = [("add", 2, 1, 'RR/RI'),
-        ("sub", 2, 2, 'RR/RI'),
+insn = [("add", 2, 1, 'RR/IR'),
+        ("sub", 2, 2, 'RR/IR'),
         ("mul", 2, 3, 'RR/IR'),
         ("div", 2, 4, 'RR/IR'),
         ("and", 2, 5, 'RR/IR'),
@@ -170,17 +170,19 @@ class Parser:
     
   def codegen(self):
     for func in self.symtab:
-      opcode = MutableUInt64(0)
       for i, ins in enumerate(func):
+        opcode = MutableUInt64(0)
         if i == 0:
           continue
+        opcode |= ins[0]
+        print(opcode)
         if ins[-1] != 'N':
           if ins[-2] != ins[1]:
             opcode |= ins[2] << 24;
           opcode |= ins[1] << 16;
         opcode |= self.compute_flags(ins[-1]) << 8
-        opcode |= ins[0]
-        func[i] = copy.deepcopy(opcode)
+        
+        func[i] = int(opcode)
     out = open('hello.out', 'wb')
     out.write(0xFACADE.to_bytes(4, 'little'))
     out.write(0xFCA.to_bytes(2, 'little'))
