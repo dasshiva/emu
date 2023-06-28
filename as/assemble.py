@@ -21,6 +21,8 @@ class Scanner:
     self.text = self.handle.readline()
     if self.text == "":
       return ["EOF"]
+    elif self.text[0] == '/' and self.text[1] == '/':
+      return ["BLANK"]
     self.change_comma()
     return self.text.split()
     
@@ -132,6 +134,8 @@ class Parser:
   def parse(self):
     while True:
       line = sc.next()
+      if line[0] == 'BLANK':
+        continue 
       if line[0] != "EOF":
         self.tokenise(line)
         for tok in self.tokens:

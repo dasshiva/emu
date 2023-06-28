@@ -724,7 +724,6 @@ static void emit_literal(Node *node) {
             emit_noindent(".data");
             emit_label(node->flabel);
             emit(".long %d", *(uint32_t *)&fval);
-            emit_noindent(".text");
         }
         emit("movss %s(x31), #xmm0", node->flabel);
         break;
@@ -736,7 +735,6 @@ static void emit_literal(Node *node) {
             emit_noindent(".data");
             emit_label(node->flabel);
             emit(".quad %lu", *(uint64_t *)&node->fval);
-            emit_noindent(".text");
         }
         emit("movsd %s(x31), #xmm0", node->flabel);
         break;
@@ -747,7 +745,6 @@ static void emit_literal(Node *node) {
             emit_noindent(".data");
             emit_label(node->slabel);
             emit(".string \"%s\"", quote_cstring_len(node->sval, node->ty->size - 1));
-            emit_noindent(".text");
         }
         emit("lea %s(x31), x0", node->slabel);
         break;
@@ -819,7 +816,7 @@ static void maybe_print_source_line(char *file, int line) {
     int len = 0;
     for (char **p = lines; *p; p++)
         len++;
-    emit_nostack("# %s", lines[line - 1]);
+    //emit_nostack("# %s", lines[line - 1]);
 }
 
 static void maybe_print_source_loc(Node *node) {
@@ -1463,9 +1460,8 @@ static void push_func_params(Vector *params, int off) {
 
 static void emit_func_prologue(Node *func) {
     SAVE;
-    emit(".text");
-    if (!func->ty->isstatic)
-        emit_noindent(".global %s", func->fname);
+   // if (!func->ty->isstatic)
+   //    emit_noindent(".global %s", func->fname);
     emit_noindent("%s:", func->fname);
     emit("nop");
     push("x2");

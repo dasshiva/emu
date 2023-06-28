@@ -1,3 +1,4 @@
+// The first function to be called after system start
 _start:
 	nop
 	push x2
