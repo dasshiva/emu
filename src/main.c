@@ -31,6 +31,7 @@ static u4 prepare(mem* memory) {
   offset += 2;
   program = malloc (sizeof (struct func*) * psize);
   for (u2 ind = 0; ind < psize; ind++) {
+    printf(" %d", offset);
     program[ind] = malloc (sizeof (struct func));
     u2 len = read_u2(memory, offset);
     if (len < 1)

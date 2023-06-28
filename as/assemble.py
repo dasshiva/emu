@@ -153,11 +153,15 @@ class Parser:
           elif tok[0] == Token.DIRECT:
             for count, attr in enumerate(data_attr):
               if attr == tok[1]:
-                self.symtab.append("__data__" + [tok[1]])
+                self.symtab.append(["__data__" + tok[1]])
                 if len(self.tokens) == 2:
                   self.symtab[-1].append([count, 0])
                 else:
-                  self.symtab[-1].append([count, self.tokens[2]])
+                  print(self.tokens)
+                  self.symtab[-1].append(self.tokens[1])
+                  self.symtab[-1].append(self.tokens[2])
+                  print(self.symtab)
+                self.tokens.clear()
                 break
           else:
             self.src.error("Only directives and labels are allowed at top level")
@@ -175,6 +179,8 @@ class Parser:
   def codegen(self):
     for func in self.symtab:
       for i, ins in enumerate(func):
+        if func[0].startswith('__data__'):
+          continue
         opcode = MutableUInt64(0)
         if i == 0:
           continue
@@ -191,19 +197,25 @@ class Parser:
     out.write(0xFACADE.to_bytes(4, 'little'))
     out.write(0xFCA.to_bytes(2, 'little'))
     out.write(len(self.symtab).to_bytes(2, 'little'))
-    def strip(string):
-      if string.startswith('__data__'):
-        return string[len('__data__'):]
-      return string
     for func in self.symtab:
-      out.write(len(strip(func[0])).to_bytes(2, 'little'))
-      out.write(bytes(func[0], 'ascii'))
       if func[0].startswith("__data__"):
+        out.write(len(func[1][1]).to_bytes(2, 'little'))
+        out.write(bytes(func[0], 'ascii'))
         out.write(0x1.to_bytes(1, 'little'))
-        width = func[1][0]
+        width = func[0][len('__data__'):]
+        if width == data_attr[0]:
+          width = 1
+        elif width == data_attr[1]:
+          width = 2
+        elif width == data_attr[2]:
+          width = 4
+        else:
+          width = 8
         out.write(width.to_bytes(1, 'little'))
-        out.write(func[1][1].to_bytes(width, 'little'))
+        out.write(func[2][1].to_bytes(width, 'little'))
       else:
+        out.write(len(func[0]).to_bytes(2, 'little'))
+        out.write(bytes(func[0], 'ascii'))
         out.write(0x0.to_bytes(1, 'little'))
         out.write(((len(func) - 1) * 4).to_bytes(4, 'little'))
         print(func)

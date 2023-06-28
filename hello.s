@@ -1,4 +1,5 @@
 // The first function to be called after system start
+.int a 90
 _start:
 	nop
 	push x2
