@@ -721,32 +721,31 @@ static void emit_literal(Node *node) {
         if (!node->flabel) {
             node->flabel = make_label();
             float fval = node->fval;
-            emit_noindent(".data");
             emit_label(node->flabel);
-            emit(".long %d", *(uint32_t *)&fval);
+            emit(".int %s %d", node->flabel + 1, *(uint32_t *)&fval);
         }
-        emit("movss %s(x31), #xmm0", node->flabel);
+        emit("movss %s(x31), #xmm0", node->flabel + 1);
         break;
     }
     case KIND_DOUBLE:
     case KIND_LDOUBLE: {
         if (!node->flabel) {
             node->flabel = make_label();
-            emit_noindent(".data");
+            //emit_noindent(".data");
             emit_label(node->flabel);
-            emit(".quad %lu", *(uint64_t *)&node->fval);
+            emit(".long %s %lu", node->flabel + 1, *(uint64_t *)&node->fval);
         }
-        emit("movsd %s(x31), #xmm0", node->flabel);
+        emit("movsd %s(x31), #xmm0", node->flabel + 1);
         break;
     }
     case KIND_ARRAY: {
         if (!node->slabel) {
             node->slabel = make_label();
-            emit_noindent(".data");
-            emit_label(node->slabel);
-            emit(".string \"%s\"", quote_cstring_len(node->sval, node->ty->size - 1));
+            //emit_noindent(".data");
+            //emit_label(node->slabel);
+            emit(".string %s \"%s\"", node->slabel + 1, quote_cstring_len(node->sval, node->ty->size - 1));
         }
-        emit("lea %s(x31), x0", node->slabel);
+        emit("lea %s(x31), x0", node->slabel + 1);
         break;
     }
     default:

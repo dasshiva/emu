@@ -47,7 +47,7 @@ insn = [("add", 2, 1, 'RR/IR'),
         ("ret", 0, 13, 'N')
        ]
 
-data_attr = ["byte", "short", "int"]
+data_attr = ["byte", "short", "int", "string", "long"]
 class Token (Enum):
   COMMA = 1
   INSN = 2
@@ -55,6 +55,7 @@ class Token (Enum):
   LABEL = 4
   REG = 5
   DIRECT = 6
+  STRING = 7
   
 class Parser:
   def __init__(self, scan):
@@ -84,6 +85,8 @@ class Parser:
           self.tokens.append(( Token.LABEL, token ))
         else:
           self.tokens.append(( Token.DIRECT , token[1:] ))
+      elif token[0] == '"':
+        self.tokens.append((Token.STRING, token[1:len(token)-1]))
       else:
         if token[-1] == ':':
           self.tokens.append(( Token.LABEL, token[:-1] ))
@@ -209,6 +212,10 @@ class Parser:
           width = 2
         elif width == data_attr[2]:
           width = 4
+        elif width == data_attr[3]:
+          out.write(len(func[2][1]).to_bytes(4, 'little'))
+          out.write(bytes(func[2][1], 'ascii'))
+          continue
         else:
           width = 8
         out.write(width.to_bytes(1, 'little'))
