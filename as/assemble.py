@@ -157,15 +157,13 @@ class Parser:
             for count, attr in enumerate(data_attr):
               if attr == tok[1]:
                 self.symtab.append(["__data__" + tok[1]])
-                if len(self.tokens) == 2:
-                  self.symtab[-1].append([count, 0])
-                else:
-                  print(self.tokens)
-                  self.symtab[-1].append(self.tokens[1])
-                  self.symtab[-1].append(self.tokens[2])
-                  print(self.symtab)
+                print(self.tokens)
+                self.symtab[-1].append(self.tokens[1])
+                self.symtab[-1].append(self.tokens[2])
+                print(self.symtab)
                 self.tokens.clear()
                 break
+            break
           else:
             self.src.error("Only directives and labels are allowed at top level")
       else:
